@@ -1,0 +1,33 @@
+{
+  "name": "pfazzi/asynchrony",
+  "type": "library",
+  "description": "The Asynchrony PHP framework",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "keywords": ["framework"],
+  "authors": [
+    {
+      "name": "Patrick Luca Fazzi",
+      "email": "patrick91@live.it"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Asynchrony\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Asynchrony\\Test\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^7.2",
+    "react/promise": "2.7",
+    "psr/http-message": "^1.0",
+    "react/http": "0.8.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "8"
+  }
+}
