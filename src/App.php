@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Asynchrony;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
 use React\Http\Response;
@@ -22,6 +23,16 @@ class App implements AppInterface
     /** @var LoopInterface */
     private $loop;
 
+    /**
+     * App constructor.
+     * @param LoopInterface $loop
+     */
+    public function __construct(LoopInterface $loop = null)
+    {
+        $this->loop = $loop;
+    }
+
+
     public function get(string $route, callable $handler): void
     {
         $this->handlers[$route] = $handler;
@@ -29,7 +40,7 @@ class App implements AppInterface
 
     public function listen(int $port, callable $callback): void
     {
-        $this->loop = EventLoopFactory::create();
+        $this->loop = $this->loop ?? EventLoopFactory::create();
 
         $server = new StreamingServer(function (ServerRequestInterface $request) {
             return new Promise(function ($resolve, $reject) use ($request) {
@@ -61,21 +72,9 @@ class App implements AppInterface
                         $resolve($response);
                     });
 
-                    $sender = new class($deferred) {
-                        private $deferred;
+                    $response = \Asynchrony\Response::create();
 
-                        public function __construct(Deferred $deferred)
-                        {
-                            $this->deferred = $deferred;
-                        }
-
-                        public function send(string $content)
-                        {
-                            $this->deferred->resolve($content);
-                        }
-                    };
-
-                    $this->handlers[$request->getUri()->getPath()]($request, $sender);
+                    $this->getHandler($request->getUri())($request, $response);
                 });
             });
         });
@@ -85,5 +84,10 @@ class App implements AppInterface
         $callback();
 
         $this->loop->run();
+    }
+
+    private function getHandler(UriInterface $uri): callable
+    {
+        return $this->handlers[$uri->getPath()];
     }
 }
