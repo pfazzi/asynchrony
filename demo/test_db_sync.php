@@ -19,12 +19,12 @@ try {
         200,
         ['Content-Type' => 'text/plain']
     )->send();
-
-    $connection = null;
 } catch(PDOException $e) {
     Response::create(
         $e->getMessage(),
         Response::HTTP_BAD_REQUEST,
         ['Content-Type' => 'text/plain']
     )->send();
+} finally {
+    $connection = null;
 }
