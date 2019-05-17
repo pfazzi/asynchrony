@@ -60,7 +60,12 @@ class App implements AppInterface
 
     public function post(string $path, callable $handler): void
     {
-        $this->addRoute(self::buildRoute($path, ['GET'], $handler));
+        $this->addRoute(self::buildRoute($path, ['POST'], $handler));
+    }
+
+    public function patch(string $path, callable $handler): void
+    {
+        $this->addRoute(self::buildRoute($path, ['PATCH'], $handler));
     }
 
     private static function buildRoute(string $path, array $methods, callable $handler): Route
