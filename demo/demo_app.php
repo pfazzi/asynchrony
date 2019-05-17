@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Asynchrony\App;
+use Symfony\Component\HttpFoundation\Request;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
@@ -18,6 +19,10 @@ $app->get('/ciao-mondo', function ($req, $res) {
     $res->send("Ciao Mondo!");
 });
 
+$app->get('/hello/{userName}', function (Request $req, $res) {
+    $res->send("Ciao {$req->get('userName')}!");
+});
+
 $app->listen(3000, function () {
-    echo 'Example app listening on port 3000!';
+    echo "Example app listening on port 3000!\n";
 });

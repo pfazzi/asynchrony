@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace Asynchrony;
 
-
 final class Response
 {
-    /** @var callable */
+    /**
+     * @var callable
+     */
     private $resolve;
 
     private function __construct(callable $resolve)
