@@ -7,9 +7,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
-use React\Http\Response;
-use React\Http\StreamingServer;
-use React\Promise\Deferred;
+use React\Http\Server;
 use React\Promise\Promise;
 use React\Socket\Server as SocketServer;
 
@@ -32,7 +30,6 @@ class App implements AppInterface
         $this->loop = $loop;
     }
 
-
     public function get(string $route, callable $handler): void
     {
         $this->handlers[$route] = $handler;
@@ -42,40 +39,9 @@ class App implements AppInterface
     {
         $this->loop = $this->loop ?? EventLoopFactory::create();
 
-        $server = new StreamingServer(function (ServerRequestInterface $request) {
+        $server = new Server(function (ServerRequestInterface $request) {
             return new Promise(function ($resolve, $reject) use ($request) {
-                if (!array_key_exists($request->getUri()->getPath(), $this->handlers)) {
-                    $resolve(
-                        new Response(
-                            404,
-                            array(
-                                'Content-Type' => 'text/plain'
-                            ),
-                            'Not found!'
-                        )
-                    );
-                    return;
-                }
-
-                $request->getBody()->on('end', function () use ($request, $resolve){
-                    $deferred = new Deferred();
-
-                    $deferred->promise()->then(function ($content) use ($resolve) {
-                        $response = new Response(
-                            200,
-                            array(
-                                'Content-Type' => 'text/plain'
-                            ),
-                            $content
-                        );
-
-                        $resolve($response);
-                    });
-
-                    $response = \Asynchrony\Response::create();
-
-                    $this->getHandler($request->getUri())($request, $response);
-                });
+                $this->getHandler($request->getUri())($request, Response::create($resolve));
             });
         });
 
